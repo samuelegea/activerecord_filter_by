@@ -1,0 +1,3 @@
+module Filterable::Helpers
+  
+end
