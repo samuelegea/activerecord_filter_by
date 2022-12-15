@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
-require "activerecord/filterable"
+require 'active_record/filterable'
+require './spec/support/init_database'
+Dir.children('./spec/support/models').each { |f| require "./spec/support/models/#{f}" }
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
-  config.example_status_persistence_file_path = ".rspec_status"
+  config.example_status_persistence_file_path = '.rspec_status'
 
   # Disable RSpec exposing methods globally on `Module` and `main`
   config.disable_monkey_patching!

@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require 'active_support'
+require 'active_record'
 require_relative "filterable/version"
 require_relative "./filterable/active_record_extension.rb"
 
-module Activerecord
+module ActiveRecord
   module Filterable
   end
 

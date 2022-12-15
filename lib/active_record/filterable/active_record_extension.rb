@@ -11,6 +11,11 @@ module ActiveRecord::Filterable
         define_method("filter_by_#{column.name}") do |filter|
           where(column.name.to_sym => filter)
         end
+
+        # Testing the not operator
+        # define_method("filter_by_not_#{column.name}") do |filter|
+        #   where.not(column.name.to_sym => filter)
+        # end
       end
     end
   end

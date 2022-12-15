@@ -5,9 +5,5 @@
 
 # end
 class User < ActiveRecord::Base
-  include ActiveRecord::Filterable
+  act_as_filterable
 end
-
-# User.filter({name: "Jhon"})
-# User.filter([{name: "Jhon"}, {name: "doe"}]).to_sql
-User.filter([{name: "Jhon", email: "joaquin", or: [{name: "smith"}, {email: "smit"}]}, {name: "doe"}]).to_sql
