@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Like < ActiveRecord::Base
   act_as_filterable
 

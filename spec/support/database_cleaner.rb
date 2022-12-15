@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rspec.configure do |config|
   config.begore do
     ActiveRecord::Base.connection.tap do |connection|

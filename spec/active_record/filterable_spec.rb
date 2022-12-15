@@ -42,6 +42,5 @@ RSpec.describe ActiveRecord::Filterable do # rubocop:disable Metrics/BlockLength
   end
 
   context 'The queries work as expected with one model' do
-    
   end
 end
