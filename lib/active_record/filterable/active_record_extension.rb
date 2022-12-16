@@ -74,7 +74,6 @@ module ActiveRecord
                 scope
               end
             end
-            singleton_class.send(:ruby2_keywords, "filter_by_#{name}")
           end
         end
       end
