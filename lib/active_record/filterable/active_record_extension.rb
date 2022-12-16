@@ -44,7 +44,7 @@ module ActiveRecord
           # end
           # will generate a class method like User#filter_by_name_of_child
           # Using like User.filter_by_name_of_child("Jhon").with_age(10)
-          # that will return a query like: 
+          # that will return a query like:
           # => "SELECT \"users\".* FROM \"users\" INNER JOIN \"childs\" ON \"childs\".\"user_id\" = \"users\".\"id\" WHERE \"childs\".\"name\" = 'Jhon' AND \"childs\".\"age\" = 10"
           # Any method defined in the block will be available in the scope
           # Althought it would not be very advisable because the #filter won't catch these block methods,
@@ -96,7 +96,6 @@ module ActiveRecord
         raise ArgumentError, message: 'params must be a Hash or a Array' unless [Array, Hash].include? params.class
 
         params.flatten!
-        pp "Params: #{params}, params class: #{params.class}"
 
         return and_filter(params: params) if params.is_a?(Hash)
         return or_filter(params: params) if params.is_a?(Array)
