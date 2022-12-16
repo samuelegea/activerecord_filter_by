@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../lib/activerecord_filterable'
+require_relative '../lib/activerecord_filter_by'
 require './spec/support/init_database'
 Dir.children('./spec/support/models').each { |f| require "./spec/support/models/#{f}" }
 

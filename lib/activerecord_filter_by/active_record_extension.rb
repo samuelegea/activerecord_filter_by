@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module ActiverecordFilterable
+module ActiverecordFilterBy
   def self.included(base)
     base.extend(ClassMethods)
 

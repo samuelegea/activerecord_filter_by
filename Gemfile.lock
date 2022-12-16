@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    activerecord_filterable (0.1.0)
+    activerecord_filter_by (0.1.0)
       activerecord (~> 6.0)
       activesupport (~> 6.0)
 
@@ -76,7 +76,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  activerecord_filterable!
+  activerecord_filter_by!
   rake (~> 13.0)
   rspec (~> 3.0)
   rubocop (~> 1.21)
