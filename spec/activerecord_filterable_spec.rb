@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe ActiveRecord::Filterable do
+RSpec.describe ActiverecordFilterable do
   let(:classes) do
     [
       Post,
@@ -14,7 +14,7 @@ RSpec.describe ActiveRecord::Filterable do
 
   it 'Check if module is included on all classes' do
     classes.each do |klass|
-      expect(klass.included_modules).to include(ActiveRecord::Filterable)
+      expect(klass.included_modules).to include(ActiverecordFilterable)
     end
   end
 

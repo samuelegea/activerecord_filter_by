@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require_relative 'lib/active_record/filterable/version'
-
 Gem::Specification.new do |spec|
-  spec.name = 'active_record-filterable'
+  spec.name = 'activerecord_filterable'
   spec.version = '0.1.0'
   spec.authors = ['Samuel Egea']
   spec.email = ['samuelegea@hotmail.com']
