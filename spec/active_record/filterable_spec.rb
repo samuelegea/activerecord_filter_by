@@ -113,7 +113,7 @@ RSpec.describe ActiveRecord::Filterable do
   end
 
   context 'The define_filter method works as expected defining a block after it' do
-    subject do 
+    subject do
       User.define_filter :posts_that_have_more_than_n_comments, ->(number_of_comments) { joins(posts: :comments).group('posts.id').having('count(comments.id) > ?', number_of_comments) } do
         def older_than(datetime)
           where('posts.created_at > ?', datetime)
