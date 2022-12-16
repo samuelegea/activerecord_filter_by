@@ -104,7 +104,7 @@ module ActiveRecord
         query = self
 
         params.map do |key, value|
-          query = if key.to_s.include? 'or'
+          query = if key.to_s == 'or'
                     query.merge(or_filter(params: value))
                   else
                     query.merge send("filter_by_#{key}", value)
@@ -117,6 +117,8 @@ module ActiveRecord
         raise ArgumentError, message: 'Params should be a array' unless params.is_a? Array
 
         query = and_filter params: params.first
+        return query if params.count == 1
+
         params.drop(1)
 
         params.map do |param|

@@ -9,11 +9,8 @@ RSpec.describe ActiveRecord::Filterable do
       Comment
     ]
   end
-  let(:user)        { User.create(name: 'John Doe', email: 'email@email.com', password_digest: '123456') }
-  let(:second_user) { User.create(name: 'John Smith', email: 'email2@email.com', password_digest: '123') }
-  let(:post)        { Post.create(title: 'Title', body: 'Body', author_id: user.id) }
-  let(:second_post) { Post.create(title: 'Title', body: 'Body', author_id: second_user.id) }
-  let(:comment)     { Comment.create(body: 'Body', author_id: user.id, post_id: post.id) }
+
+  let(:one_day_ago) { 1.day.ago }
 
   it 'Check if module is included on all classes' do
     classes.each do |klass|
@@ -89,6 +86,59 @@ RSpec.describe ActiveRecord::Filterable do
 
     it 'Check if filter with a argument named or:, alongside with other named arguments results in a complex query' do
       expect(User.filter(name: 'Jhon', or: [{ name: 'Smith' }, { email: 'email@email.com' }]).to_sql).to eq(User.where(name: 'Jhon').merge(User.where(name: 'Smith').or(User.where(email: 'email@email.com'))).to_sql)
+    end
+  end
+
+  context 'The define_filter method works as expected' do
+    subject { User.define_filter :posts_that_have_more_than_n_comments, ->(number_of_comments) { joins(posts: :comments).group('posts.id').having('count(comments.id) > ?', number_of_comments) } }
+    it 'Check if define_filter actually defines the filter prepending the name with filter_by_ and creates a class method with that name' do
+      subject
+      expect(User).to respond_to('filter_by_posts_that_have_more_than_n_comments'.to_sym)
+    end
+
+    it 'Check if defined filter actually executes the correct query' do
+      subject
+      expect(User.filter_by_posts_that_have_more_than_n_comments(30).to_sql).to eq(User.joins(posts: :comments).group('posts.id').having('count(comments.id) > ?', 30).to_sql)
+    end
+
+    it 'Check if defined_filter can be accessed by the filter method' do
+      subject
+      expect(User.filter(posts_that_have_more_than_n_comments: 30).to_sql).to eq(User.joins(posts: :comments).group('posts.id').having('count(comments.id) > ?', 30).to_sql)
+    end
+
+    it 'Check if defined_filter can be accessed by the filter method with other named arguments' do
+      subject
+      expect(User.filter(name: 'Jhon', posts_that_have_more_than_n_comments: 30).to_sql).to eq(User.where(name: 'Jhon').merge(User.joins(posts: :comments).group('posts.id').having('count(comments.id) > ?', 30)).to_sql)
+    end
+  end
+
+  context 'The define_filter method works as expected defining a block after it' do
+    subject do 
+      User.define_filter :posts_that_have_more_than_n_comments, ->(number_of_comments) { joins(posts: :comments).group('posts.id').having('count(comments.id) > ?', number_of_comments) } do
+        def older_than(datetime)
+          where('posts.created_at > ?', datetime)
+        end
+
+        def newer_than(datetime)
+          where('posts.created_at < ?', datetime)
+        end
+      end
+    end
+
+    it 'Check if defined filter actually executes the correct query' do
+      subject
+      expect(User.filter_by_posts_that_have_more_than_n_comments(30).to_sql).to eq(User.joins(posts: :comments).group('posts.id').having('count(comments.id) > ?', 30).to_sql)
+    end
+
+    it 'Check if defined filter can be accessed by the filter method' do
+      subject
+      expect(User.filter(posts_that_have_more_than_n_comments: 30).to_sql).to eq(User.joins(posts: :comments).group('posts.id').having('count(comments.id) > ?', 30).to_sql)
+    end
+
+    it 'Check if defined filter can respond to methods defined inside its block and it executes the right query' do
+      subject
+      expect(User.filter_by_posts_that_have_more_than_n_comments(30).older_than(one_day_ago).to_sql).to eq(User.joins(posts: :comments).group('posts.id').having('count(comments.id) > ?', 30).where('posts.created_at > ?', one_day_ago).to_sql)
+      expect(User.filter_by_posts_that_have_more_than_n_comments(30).newer_than(one_day_ago).to_sql).to eq(User.joins(posts: :comments).group('posts.id').having('count(comments.id) > ?', 30).where('posts.created_at < ?', one_day_ago).to_sql)
     end
   end
 end
