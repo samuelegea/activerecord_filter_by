@@ -116,11 +116,11 @@ RSpec.describe ActiveRecord::Filterable do
     subject do
       User.define_filter :posts_that_have_more_than_n_comments, ->(number_of_comments) { joins(posts: :comments).group('posts.id').having('count(comments.id) > ?', number_of_comments) } do
         def older_than(datetime)
-          where('posts.created_at > ?', datetime)
+          where('posts.created_at < ?', datetime)
         end
 
         def newer_than(datetime)
-          where('posts.created_at < ?', datetime)
+          where('posts.created_at > ?', datetime)
         end
       end
     end
@@ -137,8 +137,8 @@ RSpec.describe ActiveRecord::Filterable do
 
     it 'Check if defined filter can respond to methods defined inside its block and it executes the right query' do
       subject
-      expect(User.filter_by_posts_that_have_more_than_n_comments(30).older_than(one_day_ago).to_sql).to eq(User.joins(posts: :comments).group('posts.id').having('count(comments.id) > ?', 30).where('posts.created_at > ?', one_day_ago).to_sql)
-      expect(User.filter_by_posts_that_have_more_than_n_comments(30).newer_than(one_day_ago).to_sql).to eq(User.joins(posts: :comments).group('posts.id').having('count(comments.id) > ?', 30).where('posts.created_at < ?', one_day_ago).to_sql)
+      expect(User.filter_by_posts_that_have_more_than_n_comments(30).older_than(one_day_ago).to_sql).to eq(User.joins(posts: :comments).group('posts.id').having('count(comments.id) > ?', 30).where('posts.created_at < ?', one_day_ago).to_sql)
+      expect(User.filter_by_posts_that_have_more_than_n_comments(30).newer_than(one_day_ago).to_sql).to eq(User.joins(posts: :comments).group('posts.id').having('count(comments.id) > ?', 30).where('posts.created_at > ?', one_day_ago).to_sql)
     end
   end
 end

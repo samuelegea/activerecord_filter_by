@@ -92,6 +92,12 @@ The rule of thumb is:
 
 You can go as nested as you want, until you reach the call stack limit.
 
+### Which keys are valid for the hashes?
+
+TLDR: Every class methods started with `filter_by_` will generate a valid key (i.e.: `filter_by_child_name` -> `:child_name` will be a valid key)
+
+So, be careful because the keys you choose to pass down **NEED** to map out to a class method with its name prepended with `filter_by_`.
+
 ### Define your own filters
 
 Every **class method** prepended with `filter_by` will turn into a valid key for the filter method, but we put down some helper methods to help you define it, using the `scope` pattern, already present in `ActiveRecord`
@@ -106,6 +112,14 @@ class User < ActiveRecord::Base
   has_many :comments, class_name: 'Comment', foreign_key: 'author_id'
 
   define_filter :posts_that_have_more_than_n_comments, ->(number_of_comments) { joins(posts: :comments).group('posts.id').having('count(comments.id) > ?', number_of_comments) }
+
+  # This is the same that
+  # scope :filter_by_posts_that_have_more_than_n_comments, ->(number_of_comments) { joins(posts: :comments).group('posts.id').having('count(comments.id) > ?', number_of_comments) }
+
+  # or
+#   def self.filter_by_posts_that_have_more_than_n_comments(n)
+#     joins(posts: :comments).group('posts.id').having('count(comments.id) > ?', n)
+#   end
 end
 
 ```
@@ -121,6 +135,41 @@ The `define_filter` method takes up to 3 arguments, only requiring the first 2:
 
 Note: You can define you own class methods, if you want, or use the already well tested `scope` API, rather than that from the gem, it's really up to you.
 
+### Extending functionality
+
+If you want, and it is totally up to you, it **will not have any impact on the filter methor whatsoever**, you can pass down a block as a third argument and use it as an extension for your filters, like so:
+
+```ruby
+class User < ActiveRecord::Base
+  act_as_filterable
+  has_many :posts, class_name: 'Post', foreign_key: 'author_id'
+  has_many :likes, class_name: 'Like', foreign_key: 'author_id'
+  has_many :comments, class_name: 'Comment', foreign_key: 'author_id'
+
+  define_filter :posts_that_have_more_than_n_comments, ->(number_of_comments) { joins(posts: :comments).group('posts.id').having('count(comments.id) > ?', number_of_comments) } do
+    def newer_than(date)
+      where('posts.created_at > ?', date)
+    end
+
+    def older_than(date)
+      where('posts.created_at < ?', date)
+    end
+  end
+end
+
+```
+
+With this you will be able to call:
+
+```ruby
+irb(main):001:0> User.filter_by_posts_that_have_more_than_n_comments(2).newer_than(2.days.ago)
+# => "SELECT \"users\".* FROM \"users\" INNER JOIN \"posts\" ON \"posts\".\"author_id\" = \"users\".\"id\" INNER JOIN \"comments\" ON \"comments\".\"post_id\" = \"posts\".\"id\" WHERE (posts.created_at > '2022-12-15 11:54:47.858206') GROUP BY \"posts\".\"id\" HAVING (count(comments.id) > 30)"
+```
+
+This is only present, because the implementation is flexible enough for you to make your body as a proc **as well as** a block, and the block has this options for you, so use it as you please.
+
+**NOTE: methods that extend your filters functionality will not add new valid keys to your `filter` method**
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
@@ -129,7 +178,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/activerecord-filterable.
+Bug reports and pull requests are **really** welcome on GitHub at https://github.com/[USERNAME]/activerecordfilterable.
 
 ## License
 
